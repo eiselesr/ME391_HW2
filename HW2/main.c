@@ -277,7 +277,7 @@ void main(void)
     while(acquire==1)
     {
       //--------------------------------------------------------------------------
-      // READ ACCELEROMETER
+      // READ ACCELEROMETER/ Assemble package
       //-------------------------------------------------------------------------- 
       
       for(int i=0; i<7; i++)//READ EXTRA BIT. LAST ONE IS JUNK TO FLUSH OUT NEEDED BITS
@@ -321,24 +321,20 @@ void main(void)
         while (!(U0CSR&0x02));
       }
       
-      //			//--------------------------------------------------------------------------
-      //			// GET PWM?
-      //			//--------------------------------------------------------------------------
-      //U0CSR |= 0x40;//Enables receiver
-      //      URX0IF=0; //1 when data is in buffer
-      //      int i;
-      //      
+      //--------------------------------------------------------------------------
+      // GET PWM
+      //--------------------------------------------------------------------------
       for (int i=0;i<8;i++) {//Read 8 things
         //U0CSR &= ~0x04; //SET U0RX_BYTE to 0
         while (!(U0CSR&0x04));
         uartRxBuffer[i]=U0DBUF;
         U0CSR &= ~0x04; //SET U0RX_BYTE to 0
       }
-      acquire=0;
+      acquire=0;// WAIT TO SEE IF PC SIDE IS STILL ACQUIRING DATA OR IF ANOTHER KEY HAS BEEN PRESSED.
       
-      //			//--------------------------------------------------------------------------
-      //			// SEND TO MOTOR?
-      //			//--------------------------------------------------------------------------  
+      //--------------------------------------------------------------------------
+      // SEND TO MOTOR
+      //--------------------------------------------------------------------------  
       T1CC1H = uartRxBuffer[0];
       T1CC1L = uartRxBuffer[1];
       T1CC2H = uartRxBuffer[2];

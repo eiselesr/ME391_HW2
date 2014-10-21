@@ -8,39 +8,14 @@
 //#define _USE_MATH_DEFINES
 #include <math.h>
 
-
 #define M_PI       3.14159265358979323846
-
 
 using namespace std;
 
-
-
-
+int main(){
 //--------------------------------
 // DECLARE VARIABLES
 //--------------------------------
-
-//--------------------------------
-// START FTDI
-//--------------------------------
-//	myFTDI2 ftdi;
-//	ftdi.FT_Initialize();
-//
-//	for(int i =0; i<1000; i++)
-//	{
-//		yHI = ftdi.ReadGYRO();
-//		yLO = ftdi.ReadGYRO();
-//		ARRY[i] = yHI;
-//		i++;
-//		ARRY[i] = yLO;
-//	}
-//
-//	ftdi.Close();
-//}
-
-int main(){
-
 	unsigned char RxBuffer[35];
 	myFTDI2 ftdi;
 	ftdi.FT_Initialize();
@@ -79,9 +54,11 @@ int main(){
 	double roll;
 	double pitch;
 	ofstream myfile;
+//--------------------------------
+// BEGIN PROGRAM
+//--------------------------------
 	while(1)
 	{
-
 		//keyVal = getch();
 		cout << "Enter input" << endl;
 		cin >> keyVal;
@@ -94,6 +71,7 @@ int main(){
 			break;
 
 		case 'b': 
+			//Bias sensor
 			ftdi.Write(keyVal);
 			ftdi.Read(RxBuffer);
 			xL=(short)RxBuffer[1];
@@ -118,6 +96,10 @@ int main(){
 			myfile.open("C:\\Users\\youngem1\\Documents\\Visual Studio 2010\\Projects\\LES-DYE\\HW2Data.txt");
 			do{	
 				ftdi.Write(keyVal);
+				//-----------------------------------
+				//     GET PACKAGE
+				//     COMBINE HI AND LOW BITS
+				//-----------------------------------
 				ftdi.Read(RxBuffer);
 				IDnum = RxBuffer[0];
 				xL=(short)RxBuffer[1];
@@ -127,7 +109,7 @@ int main(){
 				yH=(short)RxBuffer[4]<<8;
 				y = yH + yL - y_bias;
 				zL=(short)RxBuffer[5];
-				zH=(short)RxBuffer[6]<<8;
+				zH=(short)RxBuffer[6]<<8;				
 				z = zH + zL - z_bias;
 				cout<<"Packet Number: "<<IDnum<<endl;
 				cout<<"x: "<<x<<endl;
@@ -139,7 +121,9 @@ int main(){
 				myfile<<" y: "<<y;
 				myfile<<" z: "<<z << endl;
 
-
+				//-------------------------------------------------
+				//     Make sure x and y vales are bounded
+				//-------------------------------------------------
 				if(x>=16384)
 				{
 					x= 16384;
@@ -218,7 +202,8 @@ int main(){
 				ftdi.WritePWM((char)PW_4H);
 				ftdi.WritePWM((char)PW_4L);
 
-			}while(!kbhit());
+			}while(!kbhit()); //CHECK TO SEE IF THE MODE HAS CHANGED
+
 			myfile.close();
 			keyVal =0;
 			break;
@@ -227,69 +212,6 @@ int main(){
 			//for debugging... 
 			//ftdi.Write(keyVal);
 			break;
-		}
-	}
-}
-
-
-
-
-
-
-
-///----------
-// MAIN LOOP
-//----------
-
-//cout << "Enter Input" << endl;
-//cin >> keyVal;
-//ftdi.Read();
-
-
-//THIS IS HOW WE CAN PACKAGE THE INFO BEFORE HAND
-//ie take advantage of faster processer to reduce load on microcontroller -- maybe will speed up 
-
-//	switch(keyVal){
-//		case 'a':
-//			//Initialize Sensor communication
-//			ftdi.Write(keyVal);
-//			break;
-//
-//			//	case 'b': 
-//		//as the sensor
-//			//		break;
-//			//	
-//			//	case 's':	
-//			//ftdi.Write(keyVal);
-//			//		break;
-//
-//		case 'k':
-//			ftdi.Write(keyVal);
-//			ftdi.Read();
-//			break;
-//
-//			//	case 'w':
-//			//		ftdi.Write(keyVal);
-//			//		ftdi.Read();
-//			//		break;
-//			//	case 'x':
-//			//		ftdi.Write(keyVal);
-//			//		ftdi.Read();
-//			//		break;
-//
-//		default:
-//			cout << "Please enter a valid option" << endl;
-//			//for debugging... 
-//			ftdi.Write(keyVal);
-//			break;
-//		}
-//	}
-//
-//}
-////
-////
-////	}//end of main loop
-////
-////	ftdi.Close();
-////
-////}
+		}//END SWITCH
+	}//END WHILE
+}//ENDMAIN
